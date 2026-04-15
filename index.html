@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Visor Estratégico de Cobranza</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .input-section {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .form-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .field {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        .field input, .field select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .field input:focus, .field select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102,126,234,0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .tables-container {
+            padding: 30px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .mora-table {
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 10px;
+            overflow-x: auto;
+        }
+
+        .mora-table h3 {
+            background: #2a5298;
+            color: white;
+            padding: 15px;
+            margin: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #333;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            padding: 5px 10px;
+            font-size: 0.8em;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .total-row {
+            background: #e3f2fd;
+            font-weight: bold;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 1.1em;
+        }
+
+        @media (max-width: 768px) {
+            .form-group {
+                flex-direction: column;
+            }
+            
+            .field {
+                width: 100%;
+            }
+            
+            .tables-container {
+                padding: 15px;
+            }
+            
+            th, td {
+                padding: 8px;
+                font-size: 0.85em;
+            }
+            
+            table {
+                min-width: 700px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Visor Estratégico de Resultados</h1>
+            <p>Gestión de Cobranza por Mora</p>
+        </div>
+
+        <div class="input-section">
+            <div class="form-group">
+                <div class="field">
+                    <label>📌 Seleccionar Mora</label>
+                    <select id="moraSelect">
+                        <option value="1">Mora 1 (Candado: 135)</option>
+                        <option value="2">Mora 2 (Candado: 57)</option>
+                        <option value="3">Mora 3 (Candado: 24)</option>
+                        <option value="4">Mora 4 (Candado: 11)</option>
+                        <option value="5">Mora 5 (Candado: 5)</option>
+                        <option value="6">Mora 6 (Candado: 3)</option>
+                        <option value="7">Mora 7 (Candado: 1.4)</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>👥 Clientes</label>
+                    <input type="number" id="clientes" placeholder="Número de clientes">
+                </div>
+                <div class="field">
+                    <label>💰 MAP</label>
+                    <input type="number" id="map" placeholder="Monto a pagar">
+                </div>
+                <div class="field">
+                    <label>💵 Abonado</label>
+                    <input type="number" id="abonado" placeholder="Cantidad abonada">
+                </div>
+                <div class="field">
+                    <label>📅 Días Trabajados</label>
+                    <select id="diasTrabajados">
+                        <option value="7">7 días</option>
+                        <option value="8">8 días</option>
+                        <option value="9">9 días</option>
+                        <option value="10">10 días</option>
+                        <option value="11">11 días</option>
+                        <option value="12">12 días</option>
+                        <option value="13">13 días</option>
+                        <option value="14">14 días</option>
+                        <option value="15">15 días</option>
+                        <option value="16">16 días</option>
+                        <option value="17">17 días</option>
+                        <option value="18">18 días</option>
+                        <option value="19">19 días</option>
+                        <option value="20">20 días</option>
+                        <option value="21">21 días</option>
+                        <option value="22">22 días</option>
+                        <option value="23">23 días</option>
+                        <option value="24">24 días</option>
+                        <option value="25">25 días</option>
+                        <option value="26">26 días</option>
+                        <option value="27">27 días</option>
+                        <option value="28">28 días</option>
+                        <option value="29">29 días</option>
+                        <option value="30">30 días</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <button onclick="agregarRegistro()">➕ Agregar Registro</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tables-container" id="tablesContainer">
+            <!-- Aquí se generarán las tablas dinámicamente -->
+        </div>
+    </div>
+
+    <script>
+        // Función para redondear a 1 decimal (con .5 hacia arriba)
+        function redondear1Decimal(valor) {
+            return Math.round(valor * 10) / 10;
+        }
+
+        // Función para formatear números con 1 decimal y signo $
+        function formatMoney(valor) {
+            return '$' + redondear1Decimal(valor).toLocaleString('en-US', {
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1
+            });
+        }
+
+        // Función para formatear R.O. sin $ y con 1 decimal
+        function formatRO(valor) {
+            return redondear1Decimal(valor).toLocaleString('en-US', {
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1
+            });
+        }
+
+        // Función para formatear números sin $ (para días, clientes, etc)
+        function formatNumber(valor) {
+            return redondear1Decimal(valor).toLocaleString('en-US', {
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1
+            });
+        }
+
+        // Candados por mora
+        const candados = {
+            1: 135,
+            2: 57,
+            3: 24,
+            4: 11,
+            5: 5,
+            6: 3,
+            7: 1.4
+        };
+
+        // Estructura de datos: cada mora tiene un array de registros
+        let datosPorMora = {
+            1: [],
+            2: [],
+            3: [],
+            4: [],
+            5: [],
+            6: [],
+            7: []
+        };
+
+        // Función para calcular MAP Con Abono
+        function calcularMapConAbono(map, candado, abonado) {
+            const mapCalculado = (map * candado) / 200;
+            const mapConAbono = mapCalculado - abonado;
+            return {
+                mapCalculado: mapCalculado,
+                mapConAbono: mapConAbono
+            };
+        }
+
+        // Función para calcular R.O. (Clientes * 30%)
+        function calcularRO(clientes) {
+            return clientes * 0.30;
+        }
+
+        // Función para calcular MAP por Día (MAP Con Abono / Días trabajados)
+        function calcularMapPorDia(mapConAbono, diasTrabajados) {
+            if (diasTrabajados <= 0) return 0;
+            return mapConAbono / diasTrabajados;
+        }
+
+        // Función para agregar un registro
+        function agregarRegistro() {
+            const mora = parseInt(document.getElementById('moraSelect').value);
+            const clientes = parseInt(document.getElementById('clientes').value);
+            const map = parseFloat(document.getElementById('map').value);
+            const abonado = parseFloat(document.getElementById('abonado').value);
+            const diasTrabajados = parseInt(document.getElementById('diasTrabajados').value);
+
+            // Validaciones
+            if (isNaN(clientes) || isNaN(map) || isNaN(abonado)) {
+                alert('Por favor, complete todos los campos');
+                return;
+            }
+
+            if (clientes <= 0 || map <= 0 || abonado < 0) {
+                alert('Los valores deben ser positivos');
+                return;
+            }
+
+            // Calcular MAP Con Abono
+            const candado = candados[mora];
+            const resultadosMap = calcularMapConAbono(map, candado, abonado);
+            const mapConAbonoNum = resultadosMap.mapConAbono;
+            
+            // Calcular R.O.
+            const ro = calcularRO(clientes);
+            
+            // Calcular MAP por Día
+            const mapPorDia = calcularMapPorDia(mapConAbonoNum, diasTrabajados);
+
+            // Crear registro
+            const registro = {
+                id: Date.now() + Math.random(),
+                clientes: clientes,
+                mapOriginal: map,
+                abonado: abonado,
+                diasTrabajados: diasTrabajados,
+                mapCalculado: resultadosMap.mapCalculado,
+                mapConAbono: mapConAbonoNum,
+                ro: ro,
+                mapPorDia: mapPorDia
+            };
+
+            // Agregar a la mora correspondiente
+            datosPorMora[mora].push(registro);
+
+            // Limpiar campos
+            document.getElementById('clientes').value = '';
+            document.getElementById('map').value = '';
+            document.getElementById('abonado').value = '';
+
+            // Actualizar todas las tablas
+            actualizarTodasLasTablas();
+        }
+
+        // Función para eliminar un registro
+        function eliminarRegistro(mora, id) {
+            datosPorMora[mora] = datosPorMora[mora].filter(reg => reg.id !== id);
+            actualizarTodasLasTablas();
+        }
+
+        // Función para calcular totales de una mora
+        function calcularTotales(registros) {
+            if (registros.length === 0) return null;
+            
+            const totalClientes = registros.reduce((sum, reg) => sum + reg.clientes, 0);
+            const totalMapOriginal = registros.reduce((sum, reg) => sum + reg.mapOriginal, 0);
+            const totalAbonado = registros.reduce((sum, reg) => sum + reg.abonado, 0);
+            const totalMapCalculado = registros.reduce((sum, reg) => sum + reg.mapCalculado, 0);
+            const totalMapConAbono = registros.reduce((sum, reg) => sum + reg.mapConAbono, 0);
+            const totalRO = registros.reduce((sum, reg) => sum + reg.ro, 0);
+            const totalMapPorDia = registros.reduce((sum, reg) => sum + reg.mapPorDia, 0);
+            
+            return {
+                clientes: totalClientes,
+                mapOriginal: totalMapOriginal,
+                abonado: totalAbonado,
+                mapCalculado: totalMapCalculado,
+                mapConAbono: totalMapConAbono,
+                ro: totalRO,
+                mapPorDia: totalMapPorDia
+            };
+        }
+
+        // Función para renderizar una tabla específica
+        function renderizarTabla(mora) {
+            const registros = datosPorMora[mora];
+            const candado = candados[mora];
+            
+            if (registros.length === 0) return null;
+            
+            const totales = calcularTotales(registros);
+            const tieneMultiplesRegistros = registros.length > 1;
+            
+            return `
+                <div class="mora-table">
+                    <h3>📋 Mora ${mora} (Candado: ${candado})</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Clientes</th>
+                                <th>MAP Original</th>
+                                <th>Abonado</th>
+                                <th>Días</th>
+                                <th>MAP Calculado</th>
+                                <th>MAP Con Abono</th>
+                                <th>MAP por Día</th>
+                                <th>R.O.</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${registros.map(reg => `
+                                <tr>
+                                    <td>${formatNumber(reg.clientes)}</td>
+                                    <td>${formatMoney(reg.mapOriginal)}</td>
+                                    <td>${formatMoney(reg.abonado)}</td>
+                                    <td>${reg.diasTrabajados}</td>
+                                    <td>${formatMoney(reg.mapCalculado)}</td>
+                                    <td>${formatMoney(reg.mapConAbono)}</td>
+                                    <td>${formatMoney(reg.mapPorDia)}</td>
+                                    <td>${formatRO(reg.ro)}</td>
+                                    <td>
+                                        <button class="delete-btn" onclick="eliminarRegistro(${mora}, ${reg.id})">
+                                            🗑️
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                            ${tieneMultiplesRegistros ? `
+                            <tr class="total-row">
+                                <td><strong>Total: ${formatNumber(totales.clientes)}</strong></td>
+                                <td><strong>${formatMoney(totales.mapOriginal)}</strong></td>
+                                <td><strong>${formatMoney(totales.abonado)}</strong></td>
+                                <td><strong>-</strong></td>
+                                <td><strong>${formatMoney(totales.mapCalculado)}</strong></td>
+                                <td><strong>${formatMoney(totales.mapConAbono)}</strong></td>
+                                <td><strong>${formatMoney(totales.mapPorDia)}</strong></td>
+                                <td><strong>${formatRO(totales.ro)}</strong></td>
+                                <td></td>
+                            </tr>
+                            ` : ''}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
+        // Función para actualizar todas las tablas
+        function actualizarTodasLasTablas() {
+            const container = document.getElementById('tablesContainer');
+            let html = '';
+            
+            // Verificar si hay datos en alguna mora
+            let hayDatos = false;
+            for (let i = 1; i <= 7; i++) {
+                if (datosPorMora[i].length > 0) {
+                    hayDatos = true;
+                    html += renderizarTabla(i);
+                }
+            }
+            
+            if (!hayDatos) {
+                html = '<div class="empty-message">📭 No hay registros aún. Agrega tu primer registro arriba.</div>';
+            }
+            
+            container.innerHTML = html;
+        }
+
+        // Inicializar las tablas
+        actualizarTodasLasTablas();
+    </script>
+</body>
+</html>
