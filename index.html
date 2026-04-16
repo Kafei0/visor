@@ -44,6 +44,80 @@
             opacity: 0.9;
         }
 
+        /* Nuevo estilo para el apartado de Meta */
+        .meta-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            padding: 20px 30px;
+            border-bottom: 2px solid #e0e0e0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-end;
+            justify-content: space-between;
+        }
+
+        .meta-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            flex: 1;
+            min-width: 250px;
+            text-align: center;
+        }
+
+        .meta-card h3 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .meta-card .meta-valor {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2a5298;
+            margin: 10px 0;
+        }
+
+        .meta-card input {
+            width: 80%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .meta-card .resultado {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .resultado-positivo {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .resultado-negativo {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .resultado-cero {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .meta-card small {
+            display: block;
+            margin-top: 10px;
+            color: #666;
+        }
+
         .input-section {
             padding: 30px;
             background: #f8f9fa;
@@ -186,6 +260,14 @@
             table {
                 min-width: 700px;
             }
+
+            .meta-section {
+                flex-direction: column;
+            }
+
+            .meta-card {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -194,6 +276,18 @@
         <div class="header">
             <h1>📊 Visor Estratégico de Resultados</h1>
             <p>Gestión de Cobranza por Mora</p>
+        </div>
+
+        <!-- NUEVO APARTADO: META -->
+        <div class="meta-section">
+            <div class="meta-card">
+                <h3>Meta de Supervisor</h3>
+                <div class="meta-valor">$90,000</div>
+                <label>Lo que llevas abonado en tu hoja de actividades:</label>
+                <input type="number" id="abonadoMeta" placeholder="" value="0">
+                <div id="resultadoMeta"></div>
+                <small>Actualización automática al escribir</small>
+            </div>
         </div>
 
         <div class="input-section">
@@ -263,6 +357,43 @@
     </div>
 
     <script>
+        // Función para actualizar el cálculo de la meta
+        function actualizarMeta() {
+            const metaFija = 90000;
+            const abonadoMeta = parseFloat(document.getElementById('abonadoMeta').value) || 0;
+            const diferencia = metaFija - abonadoMeta;
+            
+            const resultadoDiv = document.getElementById('resultadoMeta');
+            
+            let resultadoHTML = '';
+            let claseCSS = '';
+            
+            if (diferencia > 0) {
+                claseCSS = 'resultado-positivo';
+                resultadoHTML = `
+                    <div class="resultado ${claseCSS}">
+                         Te faltan: $${diferencia.toLocaleString('en-US', {minimumFractionDigits: 1, maximumFractionDigits: 1})} para llegar a la meta
+                    </div>
+                `;
+            } else if (diferencia < 0) {
+                claseCSS = 'resultado-negativo';
+                resultadoHTML = `
+                    <div class="resultado ${claseCSS}">
+                        🎉 ¡Felicidades! Superaste la meta por $${Math.abs(diferencia).toLocaleString('en-US', {minimumFractionDigits: 1, maximumFractionDigits: 1})}
+                    </div>
+                `;
+            } else {
+                claseCSS = 'resultado-cero';
+                resultadoHTML = `
+                    <div class="resultado ${claseCSS}">
+                        🎯 ¡Has alcanzado exactamente la meta de $90,000!
+                    </div>
+                `;
+            }
+            
+            resultadoDiv.innerHTML = resultadoHTML;
+        }
+
         // Función para redondear a 1 decimal (con .5 hacia arriba)
         function redondear1Decimal(valor) {
             return Math.round(valor * 10) / 10;
@@ -504,8 +635,12 @@
             container.innerHTML = html;
         }
 
-        // Inicializar las tablas
+        // Evento para actualizar la meta cuando el usuario escribe
+        document.getElementById('abonadoMeta').addEventListener('input', actualizarMeta);
+        
+        // Inicializar las tablas y la meta
         actualizarTodasLasTablas();
+        actualizarMeta();
     </script>
 </body>
 </html>
